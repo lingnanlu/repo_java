@@ -5,20 +5,6 @@ import activity.*;
 
 public class Solution {
 
-    public static HashMap<TimeInterval, Integer> WORKDAY_CHARGE_TABLE = new HashMap<>();
-    public static HashMap<TimeInterval, Integer> WEEKEND_CHARGE_TABLE = new HashMap<>();
-
-    static {
-        WORKDAY_CHARGE_TABLE.put(new TimeInterval("9:00~12:00"), 30);
-        WORKDAY_CHARGE_TABLE.put(new TimeInterval("12:00~18:00"), 50);
-        WORKDAY_CHARGE_TABLE.put(new TimeInterval("18:00~20:00"), 80);
-        WORKDAY_CHARGE_TABLE.put(new TimeInterval("20:00~22:00"), 60);
-
-        WEEKEND_CHARGE_TABLE.put(new TimeInterval("9:00~12:00"), 40);
-        WEEKEND_CHARGE_TABLE.put(new TimeInterval("12:00~18:00"), 50);
-        WEEKEND_CHARGE_TABLE.put(new TimeInterval("18:00~22:00"), 60);
-    }
-
     public static String generateSummary(String input) {
 
         List<Activity> activities = parseFrom(new ByteArrayInputStream(input.getBytes()));
@@ -26,7 +12,7 @@ public class Solution {
         Summary summary = new Summary();
 
         for (Activity activity : activities) {
-            summary.addFinacialStatus(calFinacialStatus(activity));
+            summary.addFinacialStatus(activity.getFinancialStatus());
         }
 
         return summary.toString();
@@ -83,32 +69,6 @@ public class Solution {
         */
     }
 
-    /**
-     * @param T 立即确定的场地数
-     * @param X 多出来的人数
-     * @return 需要定的场地数
-     */
-    private static int orderStrategy(int T, int X) {
-
-        int badmintonCourtCount = 0;
-
-        if (T == 0 && X < 4) {
-            badmintonCourtCount = 0;
-        } else if (T == 0 && X >= 4) {
-            badmintonCourtCount = 1;
-        } else if (T == 1) {
-            badmintonCourtCount = 2;
-        } else if ((T == 2 || T == 3) && X >= 4) {
-            badmintonCourtCount = T + 1;
-        } else if ((T == 2 || T == 3) && X < 4) {
-            badmintonCourtCount = T;
-        } else if (T > 3) {
-            badmintonCourtCount = T;
-        }
-
-        return badmintonCourtCount;
-    }
-
     private static List<Activity> parseFrom(InputStream source) {
 
         List<Activity> activities = new ArrayList<>();
@@ -124,33 +84,6 @@ public class Solution {
         return activities;
     }
 
-    /**
-     * 计算每次活动的费用情况， 保存在一个FinacialStatus中
-     */
-    private static FinancialStatus calFinacialStatus(Activity activity) {
 
-        Date date = activity.getDate();
-        TimeInterval timeInterval = activity.getPlayInterval();
-        int people = activity.getPeopleCount();
-        int badmintonCourtCount = orderStrategy(people / 6, people % 6);
-
-        int income = 0, outcome = 0;
-        if (badmintonCourtCount != 0) {
-
-            income = people * 30;
-
-            HashMap<TimeInterval, Integer> chargeTable = null;
-            if (activity.isWeekend()) chargeTable = WEEKEND_CHARGE_TABLE;
-            else chargeTable = WORKDAY_CHARGE_TABLE;
-
-            for (TimeInterval t : chargeTable.keySet()) {
-                int rentTime = t.intersection(timeInterval);
-                Integer fee = chargeTable.get(t);
-                outcome += rentTime * fee * badmintonCourtCount;
-            }
-        }
-
-        return new FinancialStatus(date, timeInterval, income, outcome);
-    }
 }
 

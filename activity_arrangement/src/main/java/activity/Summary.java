@@ -40,11 +40,9 @@ public class Summary {
         }
 
         sb.append("\n");
-        int totalIncome = totalIncome();
-        int totalPayment = totalPayment();
-        sb.append("Total Income: " + totalIncome + "\n");
-        sb.append("Total Payment: " + totalPayment + "\n");
-        int profit = totalIncome - totalPayment;
+        sb.append("Total Income: " + totalIncome() + "\n");
+        sb.append("Total Payment: " + totalPayment() + "\n");
+        int profit = totalIncome() - totalPayment();
         sb.append("Profit: " + profit + "\n");
 
         return sb.toString();
